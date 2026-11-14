@@ -6,7 +6,8 @@ export const revalidate = 0
 
 export default async function Home() {
   const supabase = await createClient()
-  const { data } = await supabase.from('admissions').select('*').order('created_at', { ascending: false })
+  // This database function returns only privacy-safe, already-masked student names.
+  const { data } = await supabase.rpc('get_public_admissions')
   const admissions = (data || []) as Admission[]
   return <main>
     <nav><a className="brand" href="/"><span>AL</span> Admit Ledger</a><a className="admin-link" href="/admin/login">Admin portal →</a></nav>
