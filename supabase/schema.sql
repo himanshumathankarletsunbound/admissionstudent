@@ -37,7 +37,7 @@ language sql stable security definer set search_path = public
 as $$
   select a.id,
     (select string_agg(upper(left(word, 1)) || repeat('*', greatest(char_length(word) - 1, 3)), ' ' order by position)
-       from regexp_split_to_table(trim(a.student_name), '\\s+') with ordinality as w(word, position)) as student_name,
+       from regexp_split_to_table(trim(a.student_name), '\s+') with ordinality as w(word, position)) as student_name,
     a.country, a.university, a.program, a.admission_year, a.created_at
   from public.admissions a
   order by a.created_at desc;
