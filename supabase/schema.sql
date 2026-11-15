@@ -8,27 +8,45 @@ create table if not exists public.admissions (
   admission_year integer not null default extract(year from now()),
   created_at timestamptz not null default now()
 );
-create table if not exists public.admin_users (
-  user_id uuid primary key references auth.users(id) on delete cascade,
+create table if not exists public.allowed_admin_emails (
+  email text primary key check (email = lower(email)),
   created_at timestamptz not null default now()
 );
 
 alter table public.admissions enable row level security;
-alter table public.admin_users enable row level security;
+alter table public.allowed_admin_emails enable row level security;
+
+create or replace function public.is_approved_admin()
+returns boolean language sql stable security definer set search_path = public
+as $$
+  select exists (
+    select 1 from public.allowed_admin_emails
+    where email = lower(coalesce(auth.jwt() ->> 'email', ''))
+  );
+$$;
 
 -- Raw names never leave the database for public visitors.
 drop policy if exists "Public can view admissions" on public.admissions;
 drop policy if exists "Authenticated admins can insert admissions" on public.admissions;
 drop policy if exists "Authenticated admins can delete admissions" on public.admissions;
+drop policy if exists "Approved admins can view admissions" on public.admissions;
+drop policy if exists "Approved admins can insert admissions" on public.admissions;
+drop policy if exists "Approved admins can delete admissions" on public.admissions;
+drop policy if exists "Approved admins can view allowed emails" on public.allowed_admin_emails;
+drop policy if exists "Approved admins can add allowed emails" on public.allowed_admin_emails;
+drop policy if exists "Approved admins can remove allowed emails" on public.allowed_admin_emails;
 create policy "Approved admins can view admissions" on public.admissions for select to authenticated using (
-  exists (select 1 from public.admin_users where user_id = auth.uid())
+  public.is_approved_admin()
 );
 create policy "Approved admins can insert admissions" on public.admissions for insert to authenticated with check (
-  exists (select 1 from public.admin_users where user_id = auth.uid())
+  public.is_approved_admin()
 );
 create policy "Approved admins can delete admissions" on public.admissions for delete to authenticated using (
-  exists (select 1 from public.admin_users where user_id = auth.uid())
+  public.is_approved_admin()
 );
+create policy "Approved admins can view allowed emails" on public.allowed_admin_emails for select to authenticated using (public.is_approved_admin());
+create policy "Approved admins can add allowed emails" on public.allowed_admin_emails for insert to authenticated with check (public.is_approved_admin());
+create policy "Approved admins can remove allowed emails" on public.allowed_admin_emails for delete to authenticated using (public.is_approved_admin());
 
 -- The public dashboard can call this function but cannot select from admissions directly.
 create or replace function public.get_public_admissions()
@@ -44,7 +62,8 @@ as $$
 $$;
 revoke all on public.admissions from anon;
 grant execute on function public.get_public_admissions() to anon, authenticated;
+grant execute on function public.is_approved_admin() to authenticated;
 
--- After creating your first Auth user, insert their UUID here in the SQL Editor:
--- insert into public.admin_users (user_id) values ('PASTE_AUTH_USER_UUID_HERE');
--- Keep "Enable sign ups" disabled in Authentication > Providers > Email.
+-- Bootstrap the initial administrator. This email may sign in using Google or its email/password account.
+insert into public.allowed_admin_emails (email) values ('himanshu.m@letsunbound.com') on conflict do nothing;
+-- In Authentication > Providers, enable Google and configure its OAuth credentials.

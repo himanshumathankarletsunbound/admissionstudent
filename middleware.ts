@@ -8,6 +8,13 @@ export async function middleware(request: NextRequest) {
   })
   const { data: { user } } = await supabase.auth.getUser()
   if (!user && request.nextUrl.pathname.startsWith('/admin/dashboard')) return NextResponse.redirect(new URL('/admin/login', request.url))
+  if (user && request.nextUrl.pathname.startsWith('/admin/dashboard')) {
+    const { data: approved } = await supabase.rpc('is_approved_admin')
+    if (!approved) {
+      await supabase.auth.signOut()
+      return NextResponse.redirect(new URL('/admin/login?error=not-approved', request.url))
+    }
+  }
   return response
 }
 

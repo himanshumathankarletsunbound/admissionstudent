@@ -7,3 +7,5 @@ export type Admission = {
   admission_year: number
   created_at: string
 }
+
+export type AllowedAdmin = { email: string; created_at: string }
