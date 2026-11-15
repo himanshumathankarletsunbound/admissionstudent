@@ -4,10 +4,12 @@ create table if not exists public.admissions (
   student_name text not null check (char_length(student_name) >= 2),
   country text not null,
   university text not null,
+  university_logo_url text,
   program text,
   admission_year integer not null default extract(year from now()),
   created_at timestamptz not null default now()
 );
+alter table public.admissions add column if not exists university_logo_url text;
 create table if not exists public.allowed_admin_emails (
   email text primary key check (email = lower(email)),
   created_at timestamptz not null default now()
@@ -49,14 +51,15 @@ create policy "Approved admins can add allowed emails" on public.allowed_admin_e
 create policy "Approved admins can remove allowed emails" on public.allowed_admin_emails for delete to authenticated using (public.is_approved_admin());
 
 -- The public dashboard can call this function but cannot select from admissions directly.
-create or replace function public.get_public_admissions()
-returns table (id uuid, student_name text, country text, university text, program text, admission_year integer, created_at timestamptz)
+drop function if exists public.get_public_admissions();
+create function public.get_public_admissions()
+returns table (id uuid, student_name text, country text, university text, university_logo_url text, program text, admission_year integer, created_at timestamptz)
 language sql stable security definer set search_path = public
 as $$
   select a.id,
     (select string_agg(upper(left(word, 1)) || repeat('*', greatest(char_length(word) - 1, 3)), ' ' order by position)
        from regexp_split_to_table(trim(a.student_name), '\s+') with ordinality as w(word, position)) as student_name,
-    a.country, a.university, a.program, a.admission_year, a.created_at
+    a.country, a.university, a.university_logo_url, a.program, a.admission_year, a.created_at
   from public.admissions a
   order by a.created_at desc;
 $$;

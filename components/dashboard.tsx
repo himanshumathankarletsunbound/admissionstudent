@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { Building2, GraduationCap, Search, UsersRound } from 'lucide-react'
 import type { Admission } from '@/lib/types'
 import { maskName } from '@/lib/mask-name'
+import { countryFlag } from '@/lib/countries'
 
 type Props = { admissions: Admission[] }
 
@@ -13,9 +14,9 @@ export function AdmissionsDashboard({ admissions }: Props) {
   const [country, setCountry] = useState('All countries')
   const countries = useMemo(() => ['All countries', ...Array.from(new Set(admissions.map(x => x.country))).sort()], [admissions])
   const filtered = useMemo(() => admissions.filter(x => (country === 'All countries' || x.country === country) && `${x.university} ${x.country} ${x.program || ''}`.toLowerCase().includes(query.toLowerCase())), [admissions, country, query])
-  const collegeGroups = useMemo(() => Object.values(filtered.reduce<Record<string, { university: string; country: string; total: number; programs: Set<string> }>>((a, x) => {
+  const collegeGroups = useMemo(() => Object.values(filtered.reduce<Record<string, { university: string; country: string; university_logo_url: string | null; total: number; programs: Set<string> }>>((a, x) => {
     const key = `${x.university}-${x.country}`
-    a[key] ??= { university: x.university, country: x.country, total: 0, programs: new Set() }
+    a[key] ??= { university: x.university, country: x.country, university_logo_url: x.university_logo_url, total: 0, programs: new Set() }
     a[key].total++; if (x.program) a[key].programs.add(x.program); return a
   }, {})).sort((a,b) => b.total-a.total), [filtered])
 
@@ -36,6 +37,7 @@ export function AdmissionsDashboard({ admissions }: Props) {
 }
 
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) { return <div className="stat"><span>{icon}</span><div><strong>{value.toLocaleString()}</strong><p>{label}</p></div></div> }
-function Flag({ country }: { country: string }) { const flags: Record<string,string> = { USA:'🇺🇸', UK:'🇬🇧', Canada:'🇨🇦', Australia:'🇦🇺', Germany:'🇩🇪', Ireland:'🇮🇪' }; return <span className="flag">{flags[country] || '🌍'}</span> }
-function StudentTable({ rows }: { rows: Admission[] }) { return <div className="table-wrap"><table><thead><tr><th>S. No.</th><th>Student</th><th>Country</th><th>Admitted university</th><th>Program</th></tr></thead><tbody>{rows.map((x, index) => <tr key={x.id}><td>{String(index + 1).padStart(2, '0')}</td><td><span className="avatar">{x.student_name[0]}</span>{maskName(x.student_name)}</td><td><Flag country={x.country}/>{x.country}</td><td className="university">{x.university}</td><td>{x.program || '—'}</td></tr>)}</tbody></table>{!rows.length && <p className="empty">No admissions match your search.</p>}</div> }
-function CollegeGrid({ groups }: { groups: { university:string; country:string; total:number; programs:Set<string> }[] }) { return <div className="college-grid">{groups.map(x => <article className="college" key={`${x.university}-${x.country}`}><div className="college-top"><span className="college-icon"><Building2 size={20}/></span><b>{x.total}</b><small>admissions</small></div><h3>{x.university}</h3><p><Flag country={x.country}/>{x.country}</p><div className="chips">{[...x.programs].slice(0,3).map(p => <span key={p}>{p}</span>)}</div></article>)}{!groups.length && <p className="empty">No universities match your search.</p>}</div> }
+function Flag({ country }: { country: string }) { return <span className="flag">{countryFlag(country)}</span> }
+function StudentTable({ rows }: { rows: Admission[] }) { return <div className="table-wrap"><table><thead><tr><th>S. No.</th><th>Student</th><th>Country</th><th>Admitted university</th><th>Program</th></tr></thead><tbody>{rows.map((x, index) => <tr key={x.id}><td>{String(index + 1).padStart(2, '0')}</td><td><img className="avatar-photo" src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(x.student_name)}`} alt="" />{maskName(x.student_name)}</td><td><Flag country={x.country}/>{x.country}</td><td className="university"><UniversityLogo admission={x}/>{x.university}</td><td>{x.program || '—'}</td></tr>)}</tbody></table>{!rows.length && <p className="empty">No admissions match your search.</p>}</div> }
+function UniversityLogo({ admission }: { admission: Admission }) { const source = admission.university_logo_url || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(admission.university)}&backgroundColor=164b3d`; return <img className="university-logo" src={source} alt="" /> }
+function CollegeGrid({ groups }: { groups: { university:string; country:string; total:number; programs:Set<string>; university_logo_url?:string|null }[] }) { return <div className="college-grid">{groups.map(x => <article className="college" key={`${x.university}-${x.country}`}><div className="college-top"><img className="college-logo" src={x.university_logo_url || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(x.university)}&backgroundColor=164b3d`} alt=""/><b>{x.total}</b><small>admissions</small></div><h3>{x.university}</h3><p><Flag country={x.country}/>{x.country}</p><div className="chips">{[...x.programs].slice(0,3).map(p => <span key={p}>{p}</span>)}</div></article>)}{!groups.length && <p className="empty">No universities match your search.</p>}</div> }

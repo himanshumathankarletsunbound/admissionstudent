@@ -3,6 +3,7 @@ export type Admission = {
   student_name: string
   country: string
   university: string
+  university_logo_url: string | null
   program: string | null
   admission_year: number
   created_at: string
