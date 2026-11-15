@@ -11,3 +11,11 @@ Live, privacy-aware student admissions dashboard. The public page masks names (f
 5. Import this repository into Vercel, then add the same two environment variables under **Project Settings → Environment Variables**.
 
 The application uses Supabase Auth for the `/admin` area and Supabase Row Level Security for admissions records. Public visitors only receive database-masked names; raw names are restricted to approved admins. Admins can allow or revoke other Google accounts from the Users section.
+
+## Automatic database migrations
+
+Database changes are versioned in `supabase/migrations/` and deployed automatically on pushes to `main` through GitHub Actions. Add these repository secrets in **GitHub → Settings → Secrets and variables → Actions**:
+
+- `SUPABASE_ACCESS_TOKEN` — a Supabase personal access token.
+- `SUPABASE_DB_PASSWORD` — the project database password.
+- `SUPABASE_PROJECT_ID` — the Supabase project reference (the subdomain in the project URL).
