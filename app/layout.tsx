@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Admit Ledger | Student Success',
+  title: 'Lets Unbound | Student Success',
   description: 'A transparent record of student admissions and university destinations.'
 }
 
