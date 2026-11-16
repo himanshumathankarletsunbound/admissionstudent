@@ -1,6 +1,7 @@
 import { AdmissionsDashboard } from '@/components/dashboard'
 import { createClient } from '@/lib/supabase/server'
 import type { Admission } from '@/lib/types'
+import { Trophy } from 'lucide-react'
 
 export const revalidate = 0
 
@@ -11,7 +12,7 @@ export default async function Home() {
   const admissions = (data || []) as Admission[]
   return <main>
     <nav className="public-nav"><a className="public-logo" href="/" aria-label="Lets Unbound home"><img src="/lets-unbound-logo.webp" alt="Lets Unbound" /></a></nav>
-    <header className="hero"><p className="eyebrow">STUDENT SUCCESS, VERIFIED</p><h1>Every admission is<br/><em>a new beginning.</em></h1><p className="intro">A transparent record of the students we have supported on their path to universities around the world.</p><div className="privacy-note"><span>✦</span> Student names are displayed confidentially to protect their privacy.</div></header>
+    <header className="hero"><p className="eyebrow">STUDENT SUCCESS, VERIFIED</p><h1>Every admission is<br/><em>a new beginning.</em></h1><p className="intro">A transparent record of the students we have supported on their path to universities around the world.</p><div className="privacy-note"><span>✦</span> Student names are displayed confidentially to protect their privacy.</div><div className="intake-badge"><span className="trophy"><Trophy size={34}/></span><strong>Fall 2027</strong></div></header>
     <AdmissionsDashboard admissions={admissions} />
     <footer>© {new Date().getFullYear()} Lets Unbound <span>•</span> Celebrating every student’s next chapter.</footer>
   </main>
