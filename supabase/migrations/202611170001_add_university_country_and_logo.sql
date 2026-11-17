@@ -2,7 +2,6 @@
 alter table public.admissions add column if not exists university_logo_url text;
 alter table public.admissions add column if not exists university_country text;
 update public.admissions set university_country = country where university_country is null;
-alter table public.admissions alter column university_country set not null;
 
 drop function if exists public.get_public_admissions();
 create function public.get_public_admissions()

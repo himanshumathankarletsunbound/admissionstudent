@@ -3,7 +3,7 @@ create table if not exists public.admissions (
   id uuid primary key default gen_random_uuid(),
   student_name text not null check (char_length(student_name) >= 2),
   country text not null,
-  university_country text not null,
+  university_country text,
   university text not null,
   university_logo_url text,
   program text,
@@ -13,7 +13,6 @@ create table if not exists public.admissions (
 alter table public.admissions add column if not exists university_logo_url text;
 alter table public.admissions add column if not exists university_country text;
 update public.admissions set university_country = country where university_country is null;
-alter table public.admissions alter column university_country set not null;
 
 create table if not exists public.allowed_admin_emails (
   email text primary key check (email = lower(email)),
