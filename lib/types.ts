@@ -2,6 +2,7 @@ export type Admission = {
   id: string
   student_name: string
   country: string
+  university_country: string
   university: string
   university_logo_url: string | null
   program: string | null
