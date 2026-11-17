@@ -7,5 +7,8 @@ export const countries = countryCodes
   .map(code => [regionNames.of(code) || code, flagFromCode(code)] as const)
   .sort(([a], [b]) => a.localeCompare(b))
 
-const aliases: Record<string, string> = { USA: '🇺🇸', US: '🇺🇸', UK: '🇬🇧', UAE: '🇦🇪' }
-export function countryFlag(country: string) { return !country ? '' : aliases[country] || countries.find(([name]) => name === country)?.[1] || '🌍' }
+const aliases: Record<string, string> = { usa: '🇺🇸', us: '🇺🇸', uk: '🇬🇧', uae: '🇦🇪' }
+export function countryFlag(country: string) {
+  const normalized = country.trim().toLocaleLowerCase()
+  return !normalized ? '' : aliases[normalized] || countries.find(([name]) => name.toLocaleLowerCase() === normalized)?.[1] || '🌍'
+}
