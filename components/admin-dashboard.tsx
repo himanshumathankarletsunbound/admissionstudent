@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { Admission, AllowedAdmin } from '@/lib/types'
 import { countries, countryFlag } from '@/lib/countries'
 
-const blank = { student_name: '', country: 'United States', university_country: 'United States', university: '', university_logo_url: '', program: '', admission_year: new Date().getFullYear() }
+const blank = { student_name: '', country: '', university_country: '', university: '', university_logo_url: '', program: '', admission_year: new Date().getFullYear() }
 export function AdminDashboard({ initialAdmissions, initialAdmins }: { initialAdmissions: Admission[]; initialAdmins: AllowedAdmin[] }) {
  const [items, setItems] = useState(initialAdmissions); const [admins, setAdmins] = useState(initialAdmins); const [approvedEmail, setApprovedEmail] = useState(''); const [form, setForm] = useState(blank); const [message, setMessage] = useState(''); const [saving, setSaving] = useState(false); const supabase = createClient()
  async function add(e: FormEvent) { e.preventDefault(); setSaving(true); setMessage(''); const payload = { ...form, university_logo_url: form.university_logo_url || null }; const { data, error } = await supabase.from('admissions').insert(payload).select().single(); setSaving(false); if (error) setMessage(error.message); else { setItems([data as Admission, ...items]); setForm(blank); setMessage('Admission published.') } }

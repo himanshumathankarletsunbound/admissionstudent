@@ -8,4 +8,4 @@ export const countries = countryCodes
   .sort(([a], [b]) => a.localeCompare(b))
 
 const aliases: Record<string, string> = { USA: '🇺🇸', US: '🇺🇸', UK: '🇬🇧', UAE: '🇦🇪' }
-export function countryFlag(country: string) { return aliases[country] || countries.find(([name]) => name === country)?.[1] || '🌍' }
+export function countryFlag(country: string) { return !country ? '' : aliases[country] || countries.find(([name]) => name === country)?.[1] || '🌍' }
