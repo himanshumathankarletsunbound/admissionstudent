@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Building2, GraduationCap, Search, UsersRound } from 'lucide-react'
+import { Search } from 'lucide-react'
 import type { Admission } from '@/lib/types'
 import { maskName } from '@/lib/mask-name'
 import { countryFlag } from '@/lib/countries'
@@ -21,11 +21,6 @@ export function AdmissionsDashboard({ admissions }: Props) {
   }, {})).sort((a,b) => b.total-a.total), [filtered])
 
   return <section className="dashboard-shell">
-    <div className="stats">
-      <Stat icon={<GraduationCap />} label="Student admissions" value={admissions.length} />
-      <Stat icon={<Building2 />} label="University partners" value={new Set(admissions.map(x => x.university)).size} />
-      <Stat icon={<UsersRound />} label="Countries reached" value={new Set(admissions.map(x => x.country)).size} />
-    </div>
     <div className="panel">
       <div className="panel-head">
         <div className="tabs" role="tablist"><button className={view === 'students' ? 'active' : ''} onClick={() => setView('students')}>Student-wise</button><button className={view === 'colleges' ? 'active' : ''} onClick={() => setView('colleges')}>College-wise</button></div>
@@ -36,7 +31,6 @@ export function AdmissionsDashboard({ admissions }: Props) {
   </section>
 }
 
-function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) { return <div className="stat"><span>{icon}</span><div><strong>{value.toLocaleString()}</strong><p>{label}</p></div></div> }
 function Flag({ country }: { country: string }) { return <span className="flag">{countryFlag(country)}</span> }
 function StudentTable({ rows }: { rows: Admission[] }) { return <div className="table-wrap"><table><thead><tr><th>S. No.</th><th>Student</th><th>Resident country</th><th>Admitted university</th><th>University location</th><th>Program</th></tr></thead><tbody>{rows.map((x, index) => <tr key={x.id}><td>{String(index + 1).padStart(2, '0')}</td><td><img className="avatar-photo" src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(x.student_name)}`} alt="" />{maskName(x.student_name)}</td><td><Flag country={x.country}/>{x.country}</td><td className="university"><UniversityLogo admission={x}/>{x.university}</td><td>{x.university_location}</td><td>{x.program || '—'}</td></tr>)}</tbody></table>{!rows.length && <p className="empty">No admissions match your search.</p>}</div> }
 function UniversityLogo({ admission }: { admission: Admission }) { const source = admission.university_logo_url || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(admission.university)}&backgroundColor=164b3d`; return <img className="university-logo" src={source} alt="" /> }
