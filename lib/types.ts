@@ -9,6 +9,7 @@ export type Admission = {
   has_scholarship: boolean
   scholarship_name: string | null
   scholarship_amount: number | null
+  admission_screenshot_url: string | null
   admission_year: number
   created_at: string
 }

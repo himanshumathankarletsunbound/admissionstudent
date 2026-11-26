@@ -10,6 +10,7 @@ create table if not exists public.admissions (
   has_scholarship boolean not null default false,
   scholarship_name text,
   scholarship_amount numeric(12, 2),
+  admission_screenshot_url text,
   constraint admissions_scholarship_name_required check (not has_scholarship or nullif(trim(scholarship_name), '') is not null),
   constraint admissions_scholarship_amount_required check (not has_scholarship or scholarship_amount is not null),
   admission_year integer not null default extract(year from now()),
@@ -17,6 +18,7 @@ create table if not exists public.admissions (
 );
 alter table public.admissions add column if not exists university_logo_url text;
 alter table public.admissions add column if not exists university_location text;
+alter table public.admissions add column if not exists admission_screenshot_url text;
 update public.admissions set university_location = country where university_location is null;
 alter table public.admissions alter column university_location set not null;
 create table if not exists public.allowed_admin_emails (
@@ -86,13 +88,13 @@ create policy "Approved admins can update universities" on public.universities f
 -- The public dashboard can call this function but cannot select from admissions directly.
 drop function if exists public.get_public_admissions();
 create function public.get_public_admissions()
-returns table (id uuid, student_name text, country text, university_location text, university text, university_logo_url text, program text, has_scholarship boolean, scholarship_name text, scholarship_amount numeric, admission_year integer, created_at timestamptz)
+returns table (id uuid, student_name text, country text, university_location text, university text, university_logo_url text, program text, has_scholarship boolean, scholarship_name text, scholarship_amount numeric, admission_screenshot_url text, admission_year integer, created_at timestamptz)
 language sql stable security definer set search_path = public
 as $$
   select a.id,
     (select string_agg(upper(left(word, 1)) || repeat('*', greatest(char_length(word) - 1, 3)), ' ' order by position)
        from regexp_split_to_table(trim(a.student_name), '\s+') with ordinality as w(word, position)) as student_name,
-    a.country, a.university_location, a.university, a.university_logo_url, a.program, a.has_scholarship, a.scholarship_name, a.scholarship_amount, a.admission_year, a.created_at
+    a.country, a.university_location, a.university, a.university_logo_url, a.program, a.has_scholarship, a.scholarship_name, a.scholarship_amount, a.admission_screenshot_url, a.admission_year, a.created_at
   from public.admissions a
   order by a.created_at desc;
 $$;
