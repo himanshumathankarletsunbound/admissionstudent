@@ -22,8 +22,8 @@ export function AdmissionsDashboard({ admissions }: Props) {
 
   return <section className="dashboard-shell">
     <div className="stats">
-      <Stat icon={<GraduationCap />} label="Admits" value={admissions.length} />
-      <Stat icon={<Building2 />} label="Universities" value={new Set(admissions.map(admission => admission.university)).size} />
+      <Stat icon={<GraduationCap />} label="Admitted" value={admissions.length} />
+      <Stat icon={<Building2 />} label="University" value={new Set(admissions.map(admission => admission.university)).size} />
       <Stat icon={<Award />} label="Total scholarship amount" value={admissions.reduce((total, admission) => total + (admission.has_scholarship ? admission.scholarship_amount || 0 : 0), 0)} prefix="$" />
     </div>
     <div className="panel">
@@ -36,7 +36,7 @@ export function AdmissionsDashboard({ admissions }: Props) {
   </section>
 }
 
-function Stat({ icon, label, value, prefix = '' }: { icon: React.ReactNode; label: string; value: number; prefix?: string }) { return <div className="stat"><span>{icon}</span><div><strong>{prefix}{value.toLocaleString()}</strong><p>{label}</p></div></div> }
+function Stat({ icon, label, value, prefix = '' }: { icon: React.ReactNode; label: string; value: number; prefix?: string }) { return <div className="stat"><span>{icon}</span><div className="stat-copy"><p>{label}</p><strong>{prefix}{value.toLocaleString()}</strong></div></div> }
 function Flag({ country }: { country: string }) { return <span className="flag">{countryFlag(country)}</span> }
 function StudentTable({ rows }: { rows: Admission[] }) { return <div className="table-wrap"><table><thead><tr><th>S. No.</th><th>Student</th><th>Resident country</th><th>Admitted university</th><th>University country</th><th>Program</th><th>Scholarship / aid</th></tr></thead><tbody>{rows.map((x, index) => <tr key={x.id}><td>{String(index + 1).padStart(2, '0')}</td><td className="student-name"><img className="avatar-photo" src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(x.student_name)}`} alt="" />{maskName(x.student_name)}</td><td><Flag country={x.country}/>{x.country}</td><td className="university"><UniversityLogo admission={x}/><span className="university-name">{x.university}</span></td><td>{x.university_location}</td><td>{x.program || '—'}</td><td>{x.has_scholarship ? <span className="scholarship-pills"><span className="scholarship-amount"><Award size={14}/>{formatAmount(x.scholarship_amount)}</span><span className="scholarship-name">{x.scholarship_name}</span></span> : '—'}</td></tr>)}</tbody></table>{!rows.length && <p className="empty">No admissions match your search.</p>}</div> }
 function formatAmount(amount: number | null) { return amount === null ? '' : `$${new Intl.NumberFormat().format(amount)}` }
