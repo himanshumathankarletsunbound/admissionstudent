@@ -5,7 +5,8 @@ import { Award, ExternalLink, LogOut, MailPlus, Pencil, Plus, Trash2, Upload, Us
 import { createClient } from '@/lib/supabase/client'
 import type { Admission, AllowedAdmin } from '@/lib/types'
 import { countries, countryFlag } from '@/lib/countries'
-import { parseUniversityCsv, type UniversityOption } from '@/lib/universities'
+
+type UniversityOption = { name: string; location: string; logo_url: string | null }
 
 const blank = { student_name: '', country: '', university_location: '', university: '', university_logo_url: '', admission_screenshot_url: '', program: '', has_scholarship: false, scholarship_name: '', scholarship_amount: '', admission_year: new Date().getFullYear() }
 
@@ -22,9 +23,9 @@ export function AdminDashboard({ initialAdmissions, initialAdmins }: { initialAd
   const [saving, setSaving] = useState(false)
   const supabase = createClient()
 
-  useEffect(() => { fetch('/universities.csv').then(response => response.text()).then(csv => setUniversityOptions(parseUniversityCsv(csv))).catch(() => setMessage('University list could not be loaded.')) }, [])
+  useEffect(() => { supabase.from('universities').select('name, country, logo_url').order('name').then(({ data, error }) => { if (error) setMessage('College list could not be loaded. Add colleges from the College list page.'); else setUniversityOptions((data || []).map(item => ({ name: item.name, location: item.country, logo_url: item.logo_url }))) }) }, [])
   const universityMatches = useMemo(() => { const term = form.university.trim().toLocaleLowerCase(); return term.length < 2 ? [] : universityOptions.filter(option => option.name.toLocaleLowerCase().includes(term)).slice(0, 8) }, [form.university, universityOptions])
-  function selectUniversity(option: UniversityOption) { setForm({ ...form, university: option.name, university_location: option.location }); setShowUniversityResults(false) }
+  function selectUniversity(option: UniversityOption) { setForm({ ...form, university: option.name, university_location: option.location, university_logo_url: option.logo_url || form.university_logo_url }); setShowUniversityResults(false) }
   function edit(item: Admission) {
     setEditingId(item.id)
     setForm({ student_name: item.student_name, country: item.country, university_location: item.university_location, university: item.university, university_logo_url: item.university_logo_url || '', admission_screenshot_url: item.admission_screenshot_url || '', program: item.program || '', has_scholarship: item.has_scholarship, scholarship_name: item.scholarship_name || '', scholarship_amount: item.scholarship_amount?.toString() || '', admission_year: item.admission_year })
@@ -71,7 +72,7 @@ export function AdminDashboard({ initialAdmissions, initialAdmins }: { initialAd
           </div>
           <datalist id="country-options">{countries.map(([name, flag]) => <option key={name} value={name}>{flag} {name}</option>)}</datalist>
           <label>Admission year<input type="number" required value={form.admission_year} onChange={event => setForm({ ...form, admission_year: +event.target.value })} /></label>
-          <label className="university-picker">University <small>Search the university list</small><input required autoComplete="off" value={form.university} onFocus={() => setShowUniversityResults(true)} onChange={event => { setForm({ ...form, university: event.target.value }); setShowUniversityResults(true) }} placeholder="Start typing a university name" />{showUniversityResults && universityMatches.length > 0 && <div className="university-results">{universityMatches.map(option => <button type="button" key={`${option.name}-${option.location}`} onMouseDown={event => { event.preventDefault(); selectUniversity(option) }}><strong>{option.name}</strong><span>{option.location}</span></button>)}</div>}</label>
+          <label className="university-picker">University <small>Search the College list</small><input required autoComplete="off" value={form.university} onFocus={() => setShowUniversityResults(true)} onChange={event => { setForm({ ...form, university: event.target.value }); setShowUniversityResults(true) }} placeholder="Start typing a university name" />{showUniversityResults && universityMatches.length > 0 && <div className="university-results">{universityMatches.map(option => <button type="button" key={`${option.name}-${option.location}`} onMouseDown={event => { event.preventDefault(); selectUniversity(option) }}><strong>{option.name}</strong><span>{option.location}</span></button>)}</div>}</label>
           <label>University logo URL <small>(optional)</small><input type="url" value={form.university_logo_url} onChange={event => setForm({ ...form, university_logo_url: event.target.value })} placeholder="https://.../official-logo.png" /></label>
           <label>Admission screenshot URL <small>(optional)</small><input type="url" value={form.admission_screenshot_url} onChange={event => setForm({ ...form, admission_screenshot_url: event.target.value })} placeholder="https://.../admission-letter.png" /></label>
           <label>Or upload admission screenshot <small>JPEG, PNG, or WebP — maximum 5 MB</small><span className="file-input"><Upload size={16}/><input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => setScreenshotFile(event.target.files?.[0] || null)} />{screenshotFile ? screenshotFile.name : 'Choose image'}</span></label>

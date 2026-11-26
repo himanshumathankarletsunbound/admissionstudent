@@ -1,17 +1,15 @@
 'use client'
 
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useMemo, useState } from 'react'
 import { Building2, Pencil, Plus, Search, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { University } from '@/lib/types'
-import { parseUniversityCsv } from '@/lib/universities'
 
 type CollegeRow = Pick<University, 'source_name' | 'name' | 'country' | 'logo_url'>
 const blank = { name: '', country: '', logo_url: '' }
 
 export function CollegeList({ initialUniversities }: { initialUniversities: University[] }) {
-  const [overrides, setOverrides] = useState(initialUniversities)
-  const [catalogue, setCatalogue] = useState<CollegeRow[]>([])
+  const [colleges, setColleges] = useState<CollegeRow[]>(initialUniversities)
   const [query, setQuery] = useState('')
   const [country, setCountry] = useState('All countries')
   const [form, setForm] = useState(blank)
@@ -20,24 +18,10 @@ export function CollegeList({ initialUniversities }: { initialUniversities: Univ
   const [saving, setSaving] = useState(false)
   const supabase = createClient()
 
-  useEffect(() => {
-    fetch('/universities.csv')
-      .then(response => response.text())
-      .then(csv => setCatalogue(parseUniversityCsv(csv).map(item => ({ source_name: item.name, name: item.name, country: item.location, logo_url: null }))))
-      .catch(() => setMessage('The existing college catalogue could not be loaded. You can still add a college.'))
-  }, [])
+  const sortedColleges = useMemo(() => [...colleges].sort((a, b) => a.name.localeCompare(b.name)), [colleges])
 
-  const colleges = useMemo(() => {
-    const overridesBySource = new Map(overrides.map(item => [item.source_name, item]))
-    const catalogueSources = new Set(catalogue.map(item => item.source_name))
-    return [
-      ...catalogue.map(item => overridesBySource.get(item.source_name) || item),
-      ...overrides.filter(item => !catalogueSources.has(item.source_name)),
-    ].sort((a, b) => a.name.localeCompare(b.name))
-  }, [catalogue, overrides])
-
-  const countries = useMemo(() => ['All countries', ...Array.from(new Set(colleges.map(item => item.country).filter(Boolean))).sort()], [colleges])
-  const filtered = useMemo(() => colleges.filter(item => (country === 'All countries' || item.country === country) && `${item.name} ${item.country}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())), [colleges, country, query])
+  const countries = useMemo(() => ['All countries', ...Array.from(new Set(sortedColleges.map(item => item.country).filter(Boolean))).sort()], [sortedColleges])
+  const filtered = useMemo(() => sortedColleges.filter(item => (country === 'All countries' || item.country === country) && `${item.name} ${item.country}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())), [sortedColleges, country, query])
 
   function startEdit(item: CollegeRow) {
     setEditingSource(item.source_name)
@@ -57,7 +41,7 @@ export function CollegeList({ initialUniversities }: { initialUniversities: Univ
     setSaving(false)
     if (error) { setMessage(error.message); return }
     const saved = data as University
-    setOverrides(current => [...current.filter(item => item.source_name !== saved.source_name), saved])
+    setColleges(current => [...current.filter(item => item.source_name !== saved.source_name), saved])
     setEditingSource(null)
     setForm(blank)
     setMessage(editingSource ? 'College updated.' : 'College added.')
@@ -66,7 +50,7 @@ export function CollegeList({ initialUniversities }: { initialUniversities: Univ
   return <main className="admin-page">
     <nav><a className="brand" href="/admin/dashboard"><span>AL</span> Lets Unbound</a><a className="plain-btn" href="/admin/dashboard">Admissions</a></nav>
     <div className="admin-content college-admin-content">
-      <div><p className="eyebrow">COLLEGE DIRECTORY</p><h1>College list</h1><p className="muted">Search the university catalogue, filter by country, and maintain the name, country, and logo shown to your team.</p></div>
+      <div><p className="eyebrow">COLLEGE DIRECTORY</p><h1>College list</h1><p className="muted">Your Supabase college directory. Add, search, filter, and maintain the name, country, and logo shown to your team.</p></div>
       <div className="college-admin-layout">
         <form className="add-card college-form" onSubmit={save}>
           <h2>{editingSource ? <Pencil size={20}/> : <Plus size={20}/>} {editingSource ? 'Edit college' : 'Add college'}</h2>
