@@ -14,3 +14,13 @@ export type Admission = {
 }
 
 export type AllowedAdmin = { email: string; created_at: string }
+
+export type University = {
+  id: string
+  source_name: string
+  name: string
+  country: string
+  logo_url: string | null
+  created_at: string
+  updated_at: string
+}

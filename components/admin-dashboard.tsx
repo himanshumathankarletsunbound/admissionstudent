@@ -48,7 +48,7 @@ export function AdminDashboard({ initialAdmissions, initialAdmins }: { initialAd
   async function logout() { await supabase.auth.signOut(); location.href = '/' }
 
   return <main className="admin-page">
-    <nav><a className="brand" href="/"><span>AL</span> Lets Unbound</a><button className="plain-btn" onClick={logout}><LogOut size={17}/> Sign out</button></nav>
+    <nav><a className="brand" href="/"><span>AL</span> Lets Unbound</a><div className="admin-nav-actions"><a className="plain-btn" href="/admin/colleges">College list</a><button className="plain-btn" onClick={logout}><LogOut size={17}/> Sign out</button></div></nav>
     <div className="admin-content">
       <div><p className="eyebrow">ADMIN DASHBOARD</p><h1>Manage admissions</h1><p className="muted">Add a student record and it will appear on the public dashboard immediately.</p></div>
       <div className="admin-layout">

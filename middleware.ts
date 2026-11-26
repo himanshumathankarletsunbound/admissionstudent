@@ -7,8 +7,8 @@ export async function middleware(request: NextRequest) {
     cookies: { getAll: () => request.cookies.getAll(), setAll: (items) => items.forEach(({ name, value, options }) => response.cookies.set(name, value, options)) }
   })
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user && request.nextUrl.pathname.startsWith('/admin/dashboard')) return NextResponse.redirect(new URL('/admin/login', request.url))
-  if (user && request.nextUrl.pathname.startsWith('/admin/dashboard')) {
+  if (!user && request.nextUrl.pathname.startsWith('/admin')) return NextResponse.redirect(new URL('/admin/login', request.url))
+  if (user && request.nextUrl.pathname.startsWith('/admin')) {
     const { data: approved } = await supabase.rpc('is_approved_admin')
     if (!approved) {
       await supabase.auth.signOut()
@@ -18,5 +18,5 @@ export async function middleware(request: NextRequest) {
   return response
 }
 
-export const config = { matcher: ['/admin/dashboard/:path*'] }
+export const config = { matcher: ['/admin/dashboard/:path*', '/admin/colleges/:path*'] }
 export const runtime = 'nodejs'

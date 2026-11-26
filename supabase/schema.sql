@@ -24,8 +24,20 @@ create table if not exists public.allowed_admin_emails (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.universities (
+  id uuid primary key default gen_random_uuid(),
+  source_name text not null unique,
+  name text not null,
+  country text not null,
+  logo_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists universities_country_idx on public.universities (country);
+
 alter table public.admissions enable row level security;
 alter table public.allowed_admin_emails enable row level security;
+alter table public.universities enable row level security;
 
 create or replace function public.is_approved_admin()
 returns boolean language sql stable security definer set search_path = public
@@ -47,6 +59,9 @@ drop policy if exists "Approved admins can delete admissions" on public.admissio
 drop policy if exists "Approved admins can view allowed emails" on public.allowed_admin_emails;
 drop policy if exists "Approved admins can add allowed emails" on public.allowed_admin_emails;
 drop policy if exists "Approved admins can remove allowed emails" on public.allowed_admin_emails;
+drop policy if exists "Approved admins can view universities" on public.universities;
+drop policy if exists "Approved admins can add universities" on public.universities;
+drop policy if exists "Approved admins can update universities" on public.universities;
 create policy "Approved admins can view admissions" on public.admissions for select to authenticated using (
   public.is_approved_admin()
 );
@@ -64,6 +79,9 @@ create policy "Approved admins can delete admissions" on public.admissions for d
 create policy "Approved admins can view allowed emails" on public.allowed_admin_emails for select to authenticated using (public.is_approved_admin());
 create policy "Approved admins can add allowed emails" on public.allowed_admin_emails for insert to authenticated with check (public.is_approved_admin());
 create policy "Approved admins can remove allowed emails" on public.allowed_admin_emails for delete to authenticated using (public.is_approved_admin());
+create policy "Approved admins can view universities" on public.universities for select to authenticated using (public.is_approved_admin());
+create policy "Approved admins can add universities" on public.universities for insert to authenticated with check (public.is_approved_admin());
+create policy "Approved admins can update universities" on public.universities for update to authenticated using (public.is_approved_admin()) with check (public.is_approved_admin());
 
 -- The public dashboard can call this function but cannot select from admissions directly.
 drop function if exists public.get_public_admissions();
