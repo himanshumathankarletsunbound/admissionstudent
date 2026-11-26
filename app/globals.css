@@ -14,4 +14,5 @@
 .record-actions{display:flex;align-items:center;gap:8px}.record-actions button:first-child,.cancel-edit{border:1px solid var(--line);border-radius:6px;padding:7px 9px;color:var(--forest);font:600 12px 'DM Sans';background:#fff}.cancel-edit{width:100%;margin-top:10px;display:flex;justify-content:center;align-items:center;gap:6px;cursor:pointer}.record-actions button:first-child:hover,.cancel-edit:hover{background:var(--mint)}
 .university{display:flex;align-items:flex-start;gap:8px}.university-logo{flex:0 0 27px;margin:0}.university-name{min-width:0;flex:1}
 .scholarship-badge small{border:0;padding-left:0}
+.scholarship-badge{white-space:nowrap}.scholarship-badge>span{overflow-wrap:normal}
 .hero:before{display:none}.hero-results .privacy-note{margin-top:26px}.live-clock{align-self:center;justify-items:end;min-width:240px}.live-clock p{margin:0 0 7px;color:#b2dcc8}.live-clock>strong{font-size:34px;letter-spacing:1.5px}@media(max-width:700px){.live-clock{min-width:0}.live-clock>strong{font-size:17px}.hero-results .privacy-note{max-width:260px;margin-top:22px}}
