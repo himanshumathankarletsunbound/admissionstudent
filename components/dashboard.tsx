@@ -24,7 +24,7 @@ export function AdmissionsDashboard({ admissions }: Props) {
     <div className="stats">
       <Stat icon={<GraduationCap />} label="Student admissions" value={admissions.length} />
       <Stat icon={<Building2 />} label="Universities reached" value={new Set(admissions.map(admission => admission.university)).size} />
-      <Stat icon={<Award />} label="Students got scholarship" value={admissions.filter(admission => admission.has_scholarship).length} />
+      <Stat icon={<Award />} label="Total scholarship amount" value={admissions.reduce((total, admission) => total + (admission.has_scholarship ? admission.scholarship_amount || 0 : 0), 0)} />
     </div>
     <div className="panel">
       <div className="panel-head">
