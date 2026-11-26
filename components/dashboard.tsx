@@ -23,7 +23,7 @@ export function AdmissionsDashboard({ admissions }: Props) {
   return <section className="dashboard-shell">
     <div className="stats">
       <Stat icon={<GraduationCap />} value={admissions.length} label="Admits" />
-      <Stat icon={<Building2 />} value={new Set(admissions.map(admission => admission.university)).size} label="University" />
+      <Stat icon={<Building2 />} value={new Set(admissions.map(admission => admission.university)).size} label="Universities" />
       <Stat icon={<Award />}  value={admissions.reduce((total, admission) => total + (admission.has_scholarship ? admission.scholarship_amount || 0 : 0), 0)} prefix="$" label="Total scholarship amount" />
     </div>
     <div className="panel">
