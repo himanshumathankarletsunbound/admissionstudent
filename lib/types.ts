@@ -8,6 +8,7 @@ export type Admission = {
   program: string | null
   has_scholarship: boolean
   scholarship_name: string | null
+  scholarship_amount: number | null
   admission_year: number
   created_at: string
 }
