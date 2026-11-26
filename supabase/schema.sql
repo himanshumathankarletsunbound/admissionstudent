@@ -42,6 +42,7 @@ drop policy if exists "Authenticated admins can insert admissions" on public.adm
 drop policy if exists "Authenticated admins can delete admissions" on public.admissions;
 drop policy if exists "Approved admins can view admissions" on public.admissions;
 drop policy if exists "Approved admins can insert admissions" on public.admissions;
+drop policy if exists "Approved admins can update admissions" on public.admissions;
 drop policy if exists "Approved admins can delete admissions" on public.admissions;
 drop policy if exists "Approved admins can view allowed emails" on public.allowed_admin_emails;
 drop policy if exists "Approved admins can add allowed emails" on public.allowed_admin_emails;
@@ -50,6 +51,11 @@ create policy "Approved admins can view admissions" on public.admissions for sel
   public.is_approved_admin()
 );
 create policy "Approved admins can insert admissions" on public.admissions for insert to authenticated with check (
+  public.is_approved_admin()
+);
+create policy "Approved admins can update admissions" on public.admissions for update to authenticated using (
+  public.is_approved_admin()
+) with check (
   public.is_approved_admin()
 );
 create policy "Approved admins can delete admissions" on public.admissions for delete to authenticated using (
