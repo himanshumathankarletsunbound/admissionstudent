@@ -57,7 +57,7 @@ export function AdminDashboard({ initialAdmissions, initialAdmins }: { initialAd
           <label>Student full name<input required value={form.student_name} onChange={event => setForm({ ...form, student_name: event.target.value })} placeholder="e.g. Aarav Kumar" /></label>
           <div className="two-cols">
             <label>Resident country <small>Search or choose</small><span className="country-input"><span>{countryFlag(form.country)}</span><input list="country-options" required value={form.country} onChange={event => setForm({ ...form, country: event.target.value })} placeholder="Search a country" /></span></label>
-            <label>University location <small>Filled from university choice</small><input required value={form.university_location} onChange={event => setForm({ ...form, university_location: event.target.value })} placeholder="e.g. United Kingdom" /></label>
+            <label>University country <small>Filled from university choice</small><input required value={form.university_location} onChange={event => setForm({ ...form, university_location: event.target.value })} placeholder="e.g. United States" /></label>
           </div>
           <datalist id="country-options">{countries.map(([name, flag]) => <option key={name} value={name}>{flag} {name}</option>)}</datalist>
           <label>Admission year<input type="number" required value={form.admission_year} onChange={event => setForm({ ...form, admission_year: +event.target.value })} /></label>
