@@ -10,7 +10,7 @@ export default async function Home() {
   const { data } = await supabase.rpc('get_public_admissions')
   const admissions = (data || []) as Admission[]
   return <main>
-    <header className="hero"><div className="hero-results"><img className="hero-logo" src="/lets-unbound-logo.webp" alt="Lets Unbound" /><h1>Fall 2027 admissions</h1><div className="privacy-note"><span>✦</span> Student names are displayed confidentially to protect their privacy.</div></div></header>
+    <header className="hero"><div className="hero-results"><img className="hero-logo" src="/lets-unbound-logo.webp" alt="Lets Unbound" /><h1>An Admissions Report You Can Hold Us Accountable To.</h1><div className="privacy-note"><span>✦</span> Student names are displayed confidentially to protect their privacy.</div></div></header>
     <AdmissionsDashboard admissions={admissions} />
     <footer>© {new Date().getFullYear()} Lets Unbound <span>•</span> Celebrating every student’s next chapter.</footer>
   </main>
